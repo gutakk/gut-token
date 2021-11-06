@@ -11,15 +11,29 @@ contract('GutToken', (accounts) => {
     it('returns correct total supply', async() => {
       const totalSupply = await gutToken.totalSupply();
 
-      assert.equal(totalSupply.toNumber(), 1000000, 'sets the total supply to 1,000,000');
+      assert.equal(totalSupply.toNumber(), 1000000);
     });
+  });
 
-    describe('balanceOf', () => {
-      it('returns correct balance from deployer address', async() => {
-        const balance = await gutToken.balanceOf(accounts[0]);
-
-        assert.equal(balance.toNumber(), 1000000, 'allocates initial supply to deployer account');
+  describe('balanceOf', () => {
+    describe('given initial supply from initialize step', () => {
+      let gutToken;
+    
+      before(async() => {
+        gutToken = await GutToken.deployed();
       });
+
+      it('returns total supply as a balance from deployer address', async() => {
+        const balance = await gutToken.balanceOf(accounts[0]);
+  
+        assert.equal(balance.toNumber(), 1000000);
+      });
+
+      it('returns 0 balance from non deployer address', async() => {
+        const balance = await gutToken.balanceOf(accounts[1]);
+
+        assert.equal(balance.toNumber(), 0);
+      })
     });
   });
 });
