@@ -1,13 +1,13 @@
 const GutToken = artifacts.require("GutToken");
 
 contract('GutToken', (accounts) => {
-  describe('Initialize', () => {
-    let gutToken;
-    
-    before(async() => {
-      gutToken = await GutToken.deployed();
-    });
+  let gutToken;
 
+  before(async() => {
+    gutToken = await GutToken.deployed();
+  });
+
+  describe('Initialize', () => {
     it('returns correct total supply', async() => {
       const totalSupply = await gutToken.totalSupply();
 
@@ -17,12 +17,6 @@ contract('GutToken', (accounts) => {
 
   describe('balanceOf', () => {
     describe('given initial supply from initialize step', () => {
-      let gutToken;
-    
-      before(async() => {
-        gutToken = await GutToken.deployed();
-      });
-
       it('returns total supply as a balance from deployer address', async() => {
         const balance = await gutToken.balanceOf(accounts[0]);
   
