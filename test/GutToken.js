@@ -66,7 +66,11 @@ contract('GutToken', (accounts) => {
         });
 
         it('emits a Transfer event', () => {
+          assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Transfer');
+          assert.equal(transaction.logs[0].args._from, accounts[0]);
+          assert.equal(transaction.logs[0].args._to, accounts[1]);
+          assert.equal(transaction.logs[0].args._value, 0);
         });
 
         it('returns correct balance from msg.sender address', async() => {
@@ -92,7 +96,11 @@ contract('GutToken', (accounts) => {
         });
 
         it('emits a Transfer event', () => {
+          assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Transfer');
+          assert.equal(transaction.logs[0].args._from, accounts[0]);
+          assert.equal(transaction.logs[0].args._to, accounts[1]);
+          assert.equal(transaction.logs[0].args._value, 100000);
         });
 
         it('returns correct balance from msg.sender address', async() => {
@@ -138,6 +146,31 @@ contract('GutToken', (accounts) => {
         } catch(err) {
           assert.equal(err.value, 'invalid address');
         }
+      });
+    });
+  });
+
+  describe('approve', () => {
+    describe('given valid spender address', () => {
+      let gutToken, transaction;
+      before(async() => {
+        gutToken = await GutToken.deployed();
+        transaction = await gutToken.approve(accounts[1], 100);
+      });
+
+      describe('given valid value', () => {
+        it('returns true', async() => {
+          const status = await gutToken.approve.call(accounts[1], 100);
+          assert.isTrue(status);
+        });
+
+        it('emits Approval event', () => {
+          assert.equal(transaction.logs.length, 1);
+          assert.equal(transaction.logs[0].event, 'Approval');
+          assert.equal(transaction.logs[0].args._owner, accounts[0]);
+          assert.equal(transaction.logs[0].args._spender, accounts[1]);
+          assert.equal(transaction.logs[0].args._value, 100);
+        });
       });
     });
   });

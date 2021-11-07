@@ -8,8 +8,10 @@ contract GutToken {
     uint8 public constant decimals = 18;
 
     mapping(address => uint256) internal balances;
+    mapping(address => mapping(address => uint256)) internal allowed;
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
     // Constructor function
     constructor(uint256 _initialSupply) {
@@ -20,7 +22,7 @@ contract GutToken {
     /**
      * @dev Gets total supply of the token
      * @return uint256 totalSupply
-     */
+    */
     function totalSupply() public view returns (uint256) {
         return totalSupply_;
     }
@@ -29,17 +31,17 @@ contract GutToken {
      * @dev Gets the balance of specified address
      * @param _addr Address to query the balance
      * @return uint256 Balance of specified address
-     */
+    */
     function balanceOf(address _addr) public view returns (uint256) {
         return balances[_addr];
     }
 
     /**
-     * @dev Transfers tokekn to specified address from msg.sender
+     * @dev Transfers token to specified address from address that call this function
      * @param _to The receiver address
      * @param _value The amount of token to be transferred
      * @return boolean Transfer status (true = success, false = unsuccess)
-     */
+    */
     function transfer(address _to, uint256 _value) public returns (bool) {
         // Condition to check if msg.sender has enough balance to transfer amount of _value
         require(balances[msg.sender] >= _value, "insufficient funds");
@@ -51,5 +53,22 @@ contract GutToken {
         emit Transfer(msg.sender, _to, _value);
 
         return true; // Return the transfer status (success)
+    }
+
+    function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
+        return allowed[_owner][_spender];
+    }
+
+    /**
+     * @dev Approves the specified address to spend the specified amount of tokens on behalf of address that call this function
+     * @param _spender The address that will spend the token on behalf of address that call this function
+     * @param _value The amount of token to be spent
+     * @return boolean Approve status (true = success, false = unsuccess)
+    */
+    function approve(address _spender, uint256 _value) public returns (bool) {
+        // According to ERC20 standard approve function MUST fire the Approval event
+        emit Approval(msg.sender, _spender, _value);
+
+        return true; // Return approve status (success)
     }
 }
