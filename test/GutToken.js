@@ -154,7 +154,7 @@ contract('GutToken', (accounts) => {
     let gutToken;
     before(async() => {
       gutToken = await GutToken.deployed();
-    })
+    });
 
     describe('given valid spender address', () => {
       describe('given valid value', () => {
@@ -216,6 +216,17 @@ contract('GutToken', (accounts) => {
             assert.equal(err.reason, 'value out-of-bounds');
           }
         });
+      });
+    });
+
+    describe('given invalid spender address', () => {
+      it('throw an error with correct error message', async() => {
+        try {
+          await gutToken.approve('invalid address', 100);
+          assert.fail('Transaction should throw an error');
+        } catch(err) {
+          assert.equal(err.value, 'invalid address');
+        }
       });
     });
   });
