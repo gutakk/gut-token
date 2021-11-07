@@ -1,7 +1,7 @@
 const GutToken = artifacts.require("GutToken");
 
 contract('GutToken', (accounts) => {
-  describe('Initialize', () => {
+  describe('initialize', () => {
     let gutToken;
     before(async() => {
       gutToken = await GutToken.deployed();
