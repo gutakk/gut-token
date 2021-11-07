@@ -70,7 +70,7 @@ contract GutToken {
 
         balances[_from] -= _value; // Subtract tokens from _from address by _value
         balances[_to] += _value; // Add tokens to _to address by _value
-        allowed[_from][msg.sender] -= _value;
+        allowed[_from][msg.sender] -= _value; // Decrease spender allowance
 
         // According to ERC20 standard transfer function MUST fire the Transfer event
         emit Transfer(_from, _to, _value);
