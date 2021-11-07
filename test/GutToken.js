@@ -1,12 +1,12 @@
 const GutToken = artifacts.require("GutToken");
 
 contract('GutToken', (accounts) => {
-  describe('initialize', () => {
-    let gutToken;
-    before(async() => {
-      gutToken = await GutToken.deployed();
-    });
+  let gutToken;
+  before(async() => {
+    gutToken = await GutToken.deployed();
+  });
 
+  describe('initialize', () => {
     it('sets correct total supply', async() => {
       const totalSupply = await gutToken.totalSupply();
       assert.equal(totalSupply.toNumber(), 1000000);
@@ -29,31 +29,19 @@ contract('GutToken', (accounts) => {
   });
 
   describe('balanceOf', () => {
-    describe('given initial supply from initialize step', () => {
-      let gutToken;
-      before(async() => {
-        gutToken = await GutToken.deployed();
-      });
+    it('returns total supply as a balance from deployer address', async() => {
+      const balance = await gutToken.balanceOf(accounts[0]);
+      assert.equal(balance.toNumber(), 1000000);
+    });
 
-      it('returns total supply as a balance from deployer address', async() => {
-        const balance = await gutToken.balanceOf(accounts[0]);
-        assert.equal(balance.toNumber(), 1000000);
-      });
-
-      it('returns 0 balance from non deployer address', async() => {
-        const balance = await gutToken.balanceOf(accounts[1]);
-        assert.equal(balance.toNumber(), 0);
-      });
+    it('returns 0 balance from non deployer address', async() => {
+      const balance = await gutToken.balanceOf(accounts[1]);
+      assert.equal(balance.toNumber(), 0);
     });
   });
 
   describe('transfer', () => {
     describe('given valid recipient address', () => {
-      let gutToken;
-      before(async() => {
-        gutToken = await GutToken.deployed();
-      })
-
       describe('given 0 value', () => {
         let transaction;
         before(async() => {
@@ -139,7 +127,6 @@ contract('GutToken', (accounts) => {
 
     describe('given invalid recipient address', () => {
       it('throw an error with correct error message', async() => {
-        const gutToken = await GutToken.deployed();
         try {
           await gutToken.transfer('invalid address', 100000);
           assert.fail('Transaction should throw an error');
@@ -151,11 +138,6 @@ contract('GutToken', (accounts) => {
   });
 
   describe('approve and allowance', () => {
-    let gutToken;
-    before(async() => {
-      gutToken = await GutToken.deployed();
-    });
-
     describe('given valid spender address', () => {
       describe('given valid value', () => {
         let transaction;
@@ -229,5 +211,24 @@ contract('GutToken', (accounts) => {
         }
       });
     });
+  });
+
+  describe('transferFrom', () => {
+    describe('given valid _from and _to address', () => {
+      describe('given sufficient value', () => {
+        it('returns true', async() => {
+          const status = await gutToken.transferFrom.call(accounts[0], accounts[1], 100);
+          assert.isTrue(status);
+        });
+      })
+    });
+
+    // describe('given invalid _from address', () => {
+
+    // });
+
+    // describe('given invalid _to address', () => {
+
+    // })
   });
 });
