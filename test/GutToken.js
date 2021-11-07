@@ -1,7 +1,6 @@
 const GutToken = artifacts.require("GutToken");
 
 contract('GutToken', (accounts) => {
-  let gutToken;
   before(async() => {
     gutToken = await GutToken.deployed();
   });
@@ -43,17 +42,13 @@ contract('GutToken', (accounts) => {
   describe('transfer', () => {
     describe('given valid recipient address', () => {
       describe('given 0 value', () => {
-        let transaction;
-        before(async() => {
-          transaction = await gutToken.transfer(accounts[1], 0);
-        });
-
         it('returns true', async() => {
           const status = await gutToken.transfer.call(accounts[1], 100000);
           assert.isTrue(status);
         });
-
-        it('emits a Transfer event', () => {
+        
+        it('emits a Transfer event', async() => {
+          const transaction = await gutToken.transfer(accounts[1], 0);
           assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Transfer');
           assert.equal(transaction.logs[0].args._from, accounts[0]);
@@ -73,17 +68,13 @@ contract('GutToken', (accounts) => {
       });
 
       describe('given sufficient value', () => {
-        let transaction;
-        before(async() => {
-          transaction = await gutToken.transfer(accounts[1], 100000);
-        });
-
         it('returns true', async() => {
           const status = await gutToken.transfer.call(accounts[1], 100000);
           assert.isTrue(status);
         });
-
-        it('emits a Transfer event', () => {
+        
+        it('emits a Transfer event', async() => {
+          const transaction = await gutToken.transfer(accounts[1], 100000);
           assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Transfer');
           assert.equal(transaction.logs[0].args._from, accounts[0]);
@@ -140,17 +131,13 @@ contract('GutToken', (accounts) => {
   describe('approve and allowance', () => {
     describe('given valid spender address', () => {
       describe('given valid value', () => {
-        let transaction;
-        before(async() => {
-          transaction = await gutToken.approve(accounts[1], 100);
-        });
-
         it('returns true', async() => {
           const status = await gutToken.approve.call(accounts[1], 100);
           assert.isTrue(status);
         });
-
-        it('emits Approval event', () => {
+        
+        it('emits Approval event', async() => {
+          const transaction = await gutToken.approve(accounts[1], 100);
           assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Approval');
           assert.equal(transaction.logs[0].args._owner, accounts[0]);
@@ -165,17 +152,13 @@ contract('GutToken', (accounts) => {
       });
 
       describe('given 0 value', () => {
-        let transaction;
-        before(async() => {
-          transaction = await gutToken.approve(accounts[1], 0);
-        });
-
         it('returns true', async() => {
           const status = await gutToken.approve.call(accounts[1], 0);
           assert.isTrue(status);
         });
-
-        it('emits Approval event', () => {
+        
+        it('emits Approval event', async() => {
+          const transaction = await gutToken.approve(accounts[1], 0);
           assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Approval');
           assert.equal(transaction.logs[0].args._owner, accounts[0]);
@@ -186,6 +169,18 @@ contract('GutToken', (accounts) => {
         it('updates allowance with correct value', async() => {
           const allowance = await gutToken.allowance(accounts[0], accounts[1]);
           assert.equal(allowance.toNumber(), 0);
+        });
+      });
+
+      describe('given new allowance for current spender', () => {
+        it('replaces allowance with correct value', async() => {
+          await gutToken.approve(accounts[1], 100);
+          const allowanceBeforeUpdate = await gutToken.allowance(accounts[0], accounts[1]);
+          assert.equal(allowanceBeforeUpdate.toNumber(), 100);
+
+          await gutToken.approve(accounts[1], 1000);
+          const allowanceAfterUpdate = await gutToken.allowance(accounts[0], accounts[1]);
+          assert.equal(allowanceAfterUpdate.toNumber(), 1000);
         });
       });
 
@@ -234,7 +229,7 @@ contract('GutToken', (accounts) => {
         });
         
         it('emits a Transfer event', async() => {
-          transaction = await gutToken.transferFrom(fromAccount, toAccount, 0, { from: spender });
+          const transaction = await gutToken.transferFrom(fromAccount, toAccount, 0, { from: spender });
           assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Transfer');
           assert.equal(transaction.logs[0].args._from, fromAccount);
@@ -269,7 +264,7 @@ contract('GutToken', (accounts) => {
         });
         
         it('emits a Transfer event', async() => {
-          transaction = await gutToken.transferFrom(fromAccount, toAccount, 100, { from: spender });
+          const transaction = await gutToken.transferFrom(fromAccount, toAccount, 100, { from: spender });
           assert.equal(transaction.logs.length, 1);
           assert.equal(transaction.logs[0].event, 'Transfer');
           assert.equal(transaction.logs[0].args._from, fromAccount);
