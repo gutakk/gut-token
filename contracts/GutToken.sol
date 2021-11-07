@@ -55,7 +55,13 @@ contract GutToken {
         return true; // Return the transfer status (success)
     }
 
-    function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
+    /**
+     * @dev Checks the amount of tokens that owner allowed to spender for delegate transfer
+     * @param _owner Address that own the tokens
+     * @param _spender Address that request to spend the tokens
+     * @return uint256 Amount of tokens that available for spender
+    */
+    function allowance(address _owner, address _spender) public view returns (uint256) {
         return allowed[_owner][_spender];
     }
 
@@ -66,6 +72,9 @@ contract GutToken {
      * @return boolean Approve status (true = success, false = unsuccess)
     */
     function approve(address _spender, uint256 _value) public returns (bool) {
+        // Assign allowance value of address that call this function to _spender by _value
+        allowed[msg.sender][_spender] = _value;
+
         // According to ERC20 standard approve function MUST fire the Approval event
         emit Approval(msg.sender, _spender, _value);
 

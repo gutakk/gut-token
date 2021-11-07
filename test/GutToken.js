@@ -150,15 +150,19 @@ contract('GutToken', (accounts) => {
     });
   });
 
-  describe('approve', () => {
-    describe('given valid spender address', () => {
-      let gutToken, transaction;
-      before(async() => {
-        gutToken = await GutToken.deployed();
-        transaction = await gutToken.approve(accounts[1], 100);
-      });
+  describe('approve and allowance', () => {
+    let gutToken;
+    before(async() => {
+      gutToken = await GutToken.deployed();
+    })
 
+    describe('given valid spender address', () => {
       describe('given valid value', () => {
+        let transaction;
+        before(async() => {
+          transaction = await gutToken.approve(accounts[1], 100);
+        });
+
         it('returns true', async() => {
           const status = await gutToken.approve.call(accounts[1], 100);
           assert.isTrue(status);
@@ -170,6 +174,47 @@ contract('GutToken', (accounts) => {
           assert.equal(transaction.logs[0].args._owner, accounts[0]);
           assert.equal(transaction.logs[0].args._spender, accounts[1]);
           assert.equal(transaction.logs[0].args._value, 100);
+        });
+
+        it('updates allowance with correct value', async() => {
+          const allowance = await gutToken.allowance(accounts[0], accounts[1]);
+          assert.equal(allowance.toNumber(), 100);
+        });
+      });
+
+      describe('given 0 value', () => {
+        let transaction;
+        before(async() => {
+          transaction = await gutToken.approve(accounts[1], 0);
+        });
+
+        it('returns true', async() => {
+          const status = await gutToken.approve.call(accounts[1], 0);
+          assert.isTrue(status);
+        });
+
+        it('emits Approval event', () => {
+          assert.equal(transaction.logs.length, 1);
+          assert.equal(transaction.logs[0].event, 'Approval');
+          assert.equal(transaction.logs[0].args._owner, accounts[0]);
+          assert.equal(transaction.logs[0].args._spender, accounts[1]);
+          assert.equal(transaction.logs[0].args._value, 0);
+        });
+
+        it('updates allowance with correct value', async() => {
+          const allowance = await gutToken.allowance(accounts[0], accounts[1]);
+          assert.equal(allowance.toNumber(), 0);
+        });
+      });
+
+      describe('given negative value', () => {
+        it('throw an error with correct error message', async() => {
+          try {
+            await gutToken.approve(accounts[1], -100);
+            assert.fail('Transaction should throw an error');
+          } catch(err) {
+            assert.equal(err.reason, 'value out-of-bounds');
+          }
         });
       });
     });
