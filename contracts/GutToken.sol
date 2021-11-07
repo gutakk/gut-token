@@ -44,8 +44,8 @@ contract GutToken {
         // Condition to check if msg.sender has enough balance to transfer amount of _value
         require(balances[msg.sender] >= _value, "insufficient funds");
 
-        balances[msg.sender] = balances[msg.sender] - _value; // Subtract token from sender by _value
-        balances[_to] = balances[_to] + _value; // Add token to recipient by _value
+        balances[msg.sender] -= _value; // Subtract token from sender by _value
+        balances[_to] += _value; // Add token to recipient by _value
 
         // According to ERC20 standard transfer function MUST fire the Transfer event
         emit Transfer(msg.sender, _to, _value);
