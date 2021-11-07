@@ -214,21 +214,139 @@ contract('GutToken', (accounts) => {
   });
 
   describe('transferFrom', () => {
+    spender = accounts[1];
+    fromAccount = accounts[2]
+    toAccount = accounts[3];
+
     describe('given valid _from and _to address', () => {
-      describe('given sufficient value', () => {
+      before(async() => {
+        await gutToken.transfer(accounts[2], 1000);
+      });
+
+      describe('given 0 value', () => {
+        before(async() => {
+          await gutToken.approve(spender, 100, { from: fromAccount });
+        });
+        
         it('returns true', async() => {
-          const status = await gutToken.transferFrom.call(accounts[0], accounts[1], 100);
+          const status = await gutToken.transferFrom.call(fromAccount, toAccount, 0, { from: spender });
           assert.isTrue(status);
         });
-      })
+        
+        it('emits a Transfer event', async() => {
+          transaction = await gutToken.transferFrom(fromAccount, toAccount, 0, { from: spender });
+          assert.equal(transaction.logs.length, 1);
+          assert.equal(transaction.logs[0].event, 'Transfer');
+          assert.equal(transaction.logs[0].args._from, fromAccount);
+          assert.equal(transaction.logs[0].args._to, toAccount);
+          assert.equal(transaction.logs[0].args._value, 0);
+        });
+
+        it('returns correct balance from fromAccount address', async() => {
+          const balance = await gutToken.balanceOf(fromAccount);
+          assert.equal(balance.toNumber(), 1000);
+        });
+
+        it('returns correct balance from toAccount address', async() => {
+          const balance = await gutToken.balanceOf(toAccount);
+          assert.equal(balance.toNumber(), 0);
+        });
+
+        it('decreases spender allowance', async() => {
+          const allowance = await gutToken.allowance(fromAccount, spender);
+          assert.equal(allowance.toNumber(), 100);
+        })
+      });
+      
+      describe('given sufficient value', () => {
+        before(async() => {
+          await gutToken.approve(spender, 100, { from: fromAccount });
+        });
+        
+        it('returns true', async() => {
+          const status = await gutToken.transferFrom.call(fromAccount, toAccount, 100, { from: spender });
+          assert.isTrue(status);
+        });
+        
+        it('emits a Transfer event', async() => {
+          transaction = await gutToken.transferFrom(fromAccount, toAccount, 100, { from: spender });
+          assert.equal(transaction.logs.length, 1);
+          assert.equal(transaction.logs[0].event, 'Transfer');
+          assert.equal(transaction.logs[0].args._from, fromAccount);
+          assert.equal(transaction.logs[0].args._to, toAccount);
+          assert.equal(transaction.logs[0].args._value, 100);
+        });
+
+        it('returns correct balance from fromAccount address', async() => {
+          const balance = await gutToken.balanceOf(fromAccount);
+          assert.equal(balance.toNumber(), 900);
+        });
+
+        it('returns correct balance from toAccount address', async() => {
+          const balance = await gutToken.balanceOf(toAccount);
+          assert.equal(balance.toNumber(), 100);
+        });
+
+        it('decreases spender allowance', async() => {
+          const allowance = await gutToken.allowance(fromAccount, spender);
+          assert.equal(allowance.toNumber(), 0);
+        })
+      });
+
+      describe('given insufficient value', () => {
+        it('throw an error with correct error message', async() => {
+          try {
+            await gutToken.transferFrom(fromAccount, toAccount, 10000, { from: spender });
+            assert.fail('Transaction should throw an error');
+          } catch(err) {
+            assert.equal(err.reason, 'insufficient funds');
+          }
+        });
+      });
+
+      describe('given larger value than allowance', () => {
+        it('throw an error with correct error message', async() => {
+          try {
+            await gutToken.transferFrom(fromAccount, toAccount, 101, { from: spender });
+            assert.fail('Transaction should throw an error');
+          } catch(err) {
+            assert.equal(err.reason, 'insufficient allowance');
+          }
+        });
+      });
+
+      describe('given negative value', () => {
+        it('throw an error with correct error message', async() => {
+          try {
+            await gutToken.transferFrom(fromAccount, toAccount, -100, { from: spender });
+            assert.fail('Transaction should throw an error');
+          } catch(err) {
+            assert.equal(err.reason, 'value out-of-bounds');
+          }
+        });
+      });
     });
 
-    // describe('given invalid _from address', () => {
+    describe('given invalid _from address', () => {
+      it('throw an error with correct error message', async() => {
+        try {
+          await gutToken.transferFrom('invalid address', toAccount, 100, { from: spender });
+          assert.fail('Transaction should throw an error');
+        } catch(err) {
+          assert.equal(err.value, 'invalid address');
+        }
+      });
+    });
 
-    // });
-
-    // describe('given invalid _to address', () => {
-
-    // })
+    describe('given invalid _to address', () => {
+      it('throw an error with correct error message', async() => {
+        try {
+          await gutToken.transferFrom(fromAccount, 'invalid address', 100, { from: spender });
+          assert.fail('Transaction should throw an error');
+        } catch(err) {
+          assert.equal(err.value, 'invalid address');
+        }
+      });
+    });
   });
 });

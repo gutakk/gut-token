@@ -37,7 +37,7 @@ contract GutToken {
     }
 
     /**
-     * @dev Transfers token to specified address from address that call this function
+     * @dev Transfers tokens to specified address from address that call this function
      * @param _to The receiver address
      * @param _value The amount of token to be transferred
      * @return boolean Transfer status (true = success, false = unsuccess)
@@ -46,11 +46,34 @@ contract GutToken {
         // Condition to check if msg.sender has enough balance to transfer amount of _value
         require(balances[msg.sender] >= _value, "insufficient funds");
 
-        balances[msg.sender] -= _value; // Subtract token from sender by _value
-        balances[_to] += _value; // Add token to recipient by _value
+        balances[msg.sender] -= _value; // Subtract tokens from sender address by _value
+        balances[_to] += _value; // Add tokens to _to address by _value
 
         // According to ERC20 standard transfer function MUST fire the Transfer event
         emit Transfer(msg.sender, _to, _value);
+
+        return true; // Return the transfer status (success)
+    }
+
+    /**
+     * @dev Transfers tokens from specified address to another specified address
+     * @param _from The sender address
+     * @param _to The receiver address
+     * @param _value The amount of token to be transferred
+     * @return boolean Transfer status (true = success, false = unsuccess)
+    */
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+        // Condition to check if msg.sender has enough balance to transfer amount of _value
+        require(balances[_from] >= _value, "insufficient funds");
+        // Condition to check if msg.sender try to spend tokens on _from account more than allowance
+        require(allowed[_from][msg.sender] >= _value , "insufficient allowance");
+
+        balances[_from] -= _value; // Subtract tokens from _from address by _value
+        balances[_to] += _value; // Add tokens to _to address by _value
+        allowed[_from][msg.sender] -= _value;
+
+        // According to ERC20 standard transfer function MUST fire the Transfer event
+        emit Transfer(_from, _to, _value);
 
         return true; // Return the transfer status (success)
     }
