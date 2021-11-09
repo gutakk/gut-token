@@ -2,12 +2,12 @@ pragma solidity ^0.8.4; // Define solidity version
 
 // Declare the smart contract
 contract GutToken {
-    uint256 internal totalSupply_;
+    uint256 internal _totalSupply;
     string public constant name = "GutToken";
     string public constant symbol = "GUT";
     uint8 public constant decimals = 18;
 
-    mapping(address => uint256) internal balances;
+    mapping(address => uint256) internal _balances;
     mapping(address => mapping(address => uint256)) internal allowed;
 
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
@@ -15,8 +15,8 @@ contract GutToken {
 
     // Constructor function
     constructor(uint256 _initialSupply) {
-        totalSupply_ = _initialSupply; // Assigns Gut token with initialSupply as a totalSupply
-        balances[msg.sender] = totalSupply_; // Allocates totalSupply amount of Gut token to deployer address
+        _totalSupply = _initialSupply; // Assigns Gut token with initialSupply as a totalSupply
+        _balances[msg.sender] = _totalSupply; // Allocates totalSupply amount of Gut token to deployer address
     }
 
     /**
@@ -24,7 +24,7 @@ contract GutToken {
      * @return uint256 totalSupply
     */
     function totalSupply() public view returns (uint256) {
-        return totalSupply_;
+        return _totalSupply;
     }
 
     /**
@@ -33,7 +33,7 @@ contract GutToken {
      * @return uint256 Balance of specified address
     */
     function balanceOf(address _addr) public view returns (uint256) {
-        return balances[_addr];
+        return _balances[_addr];
     }
 
     /**
@@ -44,10 +44,10 @@ contract GutToken {
     */
     function transfer(address _to, uint256 _value) public returns (bool) {
         // Condition to check if msg.sender has enough balance to transfer amount of _value
-        require(balances[msg.sender] >= _value, "insufficient funds");
+        require(_balances[msg.sender] >= _value, "insufficient funds");
 
-        balances[msg.sender] -= _value; // Subtract tokens from sender address by _value
-        balances[_to] += _value; // Add tokens to _to address by _value
+        _balances[msg.sender] -= _value; // Subtract tokens from sender address by _value
+        _balances[_to] += _value; // Add tokens to _to address by _value
 
         // According to ERC20 standard transfer function MUST fire the Transfer event
         emit Transfer(msg.sender, _to, _value);
@@ -64,12 +64,12 @@ contract GutToken {
     */
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
         // Condition to check if msg.sender has enough balance to transfer amount of _value
-        require(balances[_from] >= _value, "insufficient funds");
+        require(_balances[_from] >= _value, "insufficient funds");
         // Condition to check if msg.sender try to spend tokens on _from account more than allowance
         require(allowed[_from][msg.sender] >= _value , "insufficient allowance");
 
-        balances[_from] -= _value; // Subtract tokens from _from address by _value
-        balances[_to] += _value; // Add tokens to _to address by _value
+        _balances[_from] -= _value; // Subtract tokens from _from address by _value
+        _balances[_to] += _value; // Add tokens to _to address by _value
         allowed[_from][msg.sender] -= _value; // Decrease spender allowance
 
         // According to ERC20 standard transfer function MUST fire the Transfer event
