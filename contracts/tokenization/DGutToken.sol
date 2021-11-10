@@ -29,4 +29,11 @@ contract DGutToken {
     function balanceOf(address _addr) public view returns (uint256) {
         return _balances[_addr];
     }
+
+    function _mint(address _account, uint256 _amount) internal {
+        _totalSupply += _amount;
+        _balances[_account] += _amount;
+
+        emit Transfer(address(0), _account, _amount);
+    }
 }
