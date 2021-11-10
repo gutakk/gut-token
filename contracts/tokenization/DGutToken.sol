@@ -30,10 +30,18 @@ contract DGutToken {
         return _balances[_addr];
     }
 
+    /**
+     * @dev Creates _amount of tokens and transfer to _account
+     * @param _account Address to receive minted token
+     * @param _amount Amount of token to be minted
+    */
     function _mint(address _account, uint256 _amount) internal {
-        _totalSupply += _amount;
-        _balances[_account] += _amount;
+        _totalSupply += _amount; // Update total supply by _amount
+        _balances[_account] += _amount; // Assign _amount of minted token to _account
 
+        // According to ERC20 standard transfer function MUST fire the Transfer event
+        // Mint is create token and transfer to _account
         emit Transfer(address(0), _account, _amount);
     }
+    
 }
