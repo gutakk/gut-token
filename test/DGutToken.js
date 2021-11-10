@@ -1,25 +1,25 @@
-const DGutTokenMock = artifacts.require("DGutTokenMock");
+const DGutToken = artifacts.require("DGutToken");
 
 const mintAmount = 100;
 
 contract('DGutToken', (accounts) => {
   before(async() => {
-    dGutTokenMock = await DGutTokenMock.new();
+    dGutToken = await DGutToken.deployed();
   });
 
   describe('initialize', () => {
     it('sets correct token name', async() => {
-      const tokenName = await dGutTokenMock.name();
+      const tokenName = await dGutToken.name();
       assert.equal(tokenName, 'DebtGutToken');
     });
 
     it('sets correct token symbol', async() => {
-      const tokenSymbol = await dGutTokenMock.symbol();
+      const tokenSymbol = await dGutToken.symbol();
       assert.equal(tokenSymbol, 'dGUT');
     });
 
     it('sets correct token decimals', async() => {
-      const tokenDecimals = await dGutTokenMock.decimals();
+      const tokenDecimals = await dGutToken.decimals();
       assert.equal(tokenDecimals, 18);
     });
   });
@@ -28,7 +28,7 @@ contract('DGutToken', (accounts) => {
     describe('given valid target address', () => {
       describe('given 0 amount', () => {
         before(async() => {
-          transaction = await dGutTokenMock.mint(accounts[0], 0);
+          transaction = await dGutToken.mint(accounts[0], 0);
         });
   
         it('emit Transfer event', async() => {
@@ -40,19 +40,19 @@ contract('DGutToken', (accounts) => {
         });
   
         it('mints correct balance to target address', async() => {
-          const balance = await dGutTokenMock.balanceOf(accounts[0]);
+          const balance = await dGutToken.balanceOf(accounts[0]);
           assert.equal(balance.toNumber(), 0);
         });
   
         it('updates correct total supply', async() => {
-          const totalSupply = await dGutTokenMock.totalSupply();
+          const totalSupply = await dGutToken.totalSupply();
           assert.equal(totalSupply.toNumber(), 0);
         });
       });
 
       describe('given positive amount', () => {
         before(async() => {
-          transaction = await dGutTokenMock.mint(accounts[0], mintAmount);
+          transaction = await dGutToken.mint(accounts[0], mintAmount);
         });
   
         it('emit Transfer event', async() => {
@@ -64,12 +64,12 @@ contract('DGutToken', (accounts) => {
         });
   
         it('mints correct balance to target address', async() => {
-          const balance = await dGutTokenMock.balanceOf(accounts[0]);
+          const balance = await dGutToken.balanceOf(accounts[0]);
           assert.equal(balance.toNumber(), mintAmount);
         });
   
         it('updates correct total supply', async() => {
-          const totalSupply = await dGutTokenMock.totalSupply();
+          const totalSupply = await dGutToken.totalSupply();
           assert.equal(totalSupply.toNumber(), mintAmount);
         });
       });
@@ -77,7 +77,7 @@ contract('DGutToken', (accounts) => {
       describe('given negative amount', () => {
         it('throw an error with correct error message', async() => {
           try {
-            await dGutTokenMock.mint(accounts[1], -100);
+            await dGutToken.mint(accounts[1], -100);
             assert.fail('Transaction should throw an error');
           } catch(err) {
             assert.equal(err.reason, 'value out-of-bounds');
@@ -89,7 +89,7 @@ contract('DGutToken', (accounts) => {
     describe('given invalid target address', () => {
       it('throw an error with correct error message', async() => {
         try {
-          await dGutTokenMock.mint('invalid address', mintAmount);
+          await dGutToken.mint('invalid address', mintAmount);
           assert.fail('Transaction should throw an error');
         } catch(err) {
           assert.equal(err.value, 'invalid address');
@@ -102,7 +102,7 @@ contract('DGutToken', (accounts) => {
     describe('given valid target address', () => {
       describe('given 0 amount', () => {
         before(async() => {
-          transaction = await dGutTokenMock.burn(accounts[0], 0);
+          transaction = await dGutToken.burn(accounts[0], 0);
         });
 
         it('emit Transfer event', async() => {
@@ -114,19 +114,19 @@ contract('DGutToken', (accounts) => {
         });
 
         it('does NOT burn balance from target address', async() => {
-          const balance = await dGutTokenMock.balanceOf(accounts[0]);
+          const balance = await dGutToken.balanceOf(accounts[0]);
           assert.equal(balance.toNumber(), mintAmount);
         });
   
         it('does NOT decrease total supply', async() => {
-          const totalSupply = await dGutTokenMock.totalSupply();
+          const totalSupply = await dGutToken.totalSupply();
           assert.equal(totalSupply.toNumber(), mintAmount);
         });
       });
 
       describe('given positive amount', () => {
         before(async() => {
-          transaction = await dGutTokenMock.burn(accounts[0], 50);
+          transaction = await dGutToken.burn(accounts[0], 50);
         });
 
         it('emit Transfer event', async() => {
@@ -138,12 +138,12 @@ contract('DGutToken', (accounts) => {
         });
 
         it('burns correct amount from target address', async() => {
-          const balance = await dGutTokenMock.balanceOf(accounts[0]);
+          const balance = await dGutToken.balanceOf(accounts[0]);
           assert.equal(balance.toNumber(), 50);
         });
   
         it('decreases correct amount from total supply', async() => {
-          const totalSupply = await dGutTokenMock.totalSupply();
+          const totalSupply = await dGutToken.totalSupply();
           assert.equal(totalSupply.toNumber(), 50);
         });
       });
@@ -151,7 +151,7 @@ contract('DGutToken', (accounts) => {
       describe('given burn amount exceeds target address balance', () => {
         it('throw an error with correct error message', async() => {
           try {
-            await dGutTokenMock.burn(accounts[0], 9999);
+            await dGutToken.burn(accounts[0], 9999);
             assert.fail('Transaction should throw an error');
           } catch(err) {
             assert.equal(err.reason, 'burn amount exceeds balance');
@@ -162,7 +162,7 @@ contract('DGutToken', (accounts) => {
       describe('given negative amount', () => {
         it('throw an error with correct error message', async() => {
           try {
-            await dGutTokenMock.burn(accounts[1], -100);
+            await dGutToken.burn(accounts[1], -100);
             assert.fail('Transaction should throw an error');
           } catch(err) {
             assert.equal(err.reason, 'value out-of-bounds');

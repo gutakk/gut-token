@@ -1,9 +1,11 @@
 const GutToken = artifacts.require("GutToken");
+const DGutToken = artifacts.require("DGutToken");
 const LendingVault = artifacts.require("LendingVault");
 
-contract('LendingVault', () => {
+contract('LendingVault', (accounts) => {
   before(async() => {
     gutToken = await GutToken.deployed();
+    dGutToken = await DGutToken.deployed();
     lendingVault = await LendingVault.deployed();
   });
 
@@ -13,7 +15,7 @@ contract('LendingVault', () => {
     });
 
     it('returns non zero GutToken contract address', async() => {
-      const gutTokenContract = await lendingVault.tokenContract();
+      const gutTokenContract = await lendingVault.gutToken();
       assert.notEqual(gutTokenContract.address, 0x0);
     })
   });
@@ -54,6 +56,11 @@ contract('LendingVault', () => {
         assert.equal(transaction.logs.length, 1);
         assert.equal(transaction.logs[0].event, 'Deposit');
         assert.equal(transaction.logs[0].args._amount, depositAmount);
+      });
+
+      it('receives correct DGutToken', async() => {
+        const dGutTokenBalance = await dGutToken.balanceOf(accounts[0]);
+        assert.equal(dGutTokenBalance.toNumber(), depositAmount);
       });
     });
 

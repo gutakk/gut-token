@@ -35,7 +35,7 @@ contract DGutToken {
      * @param _account Address to receive minted token
      * @param _amount Amount of token to be minted
     */
-    function _mint(address _account, uint256 _amount) internal {
+    function mint(address _account, uint256 _amount) public {
         _totalSupply += _amount; // Increase total supply by _amount
         _balances[_account] += _amount; // Assign _amount of minted token to _account
 
@@ -49,7 +49,7 @@ contract DGutToken {
      * @param _account Address to remove minted token
      * @param _amount Amount of token to be burned
     */
-    function _burn(address _account, uint256 _amount) internal {
+    function burn(address _account, uint256 _amount) public {
         // Check if _account has enough balance to burn otherwise throw error
         require(_balances[_account] >= _amount, "burn amount exceeds balance");
 

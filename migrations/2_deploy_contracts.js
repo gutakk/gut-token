@@ -9,5 +9,5 @@ module.exports = async function (deployer) {
   await deployer.deploy(DGutToken);
   const dGutTokenInstance = await DGutToken.deployed();
 
-  await deployer.deploy(LendingVault, gutTokenInstance.address)
+  await deployer.deploy(LendingVault, gutTokenInstance.address, dGutTokenInstance.address)
 };
