@@ -24,7 +24,7 @@ contract('DGutToken', (accounts) => {
     });
   });
 
-  describe('mint token', () => {
+  describe('mint', () => {
     describe('given valid target address', () => {
       describe('given 0 amount', () => {
         before(async() => {
@@ -98,7 +98,7 @@ contract('DGutToken', (accounts) => {
     });
   });
 
-  describe('burn token', () => {
+  describe('burn', () => {
     describe('given valid target address', () => {
       describe('given 0 amount', () => {
         before(async() => {
